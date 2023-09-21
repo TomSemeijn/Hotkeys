@@ -9,7 +9,7 @@
 	{
 		For index, filePath in StrSplit(select, "`n")
 		{
-			Run Format('C:\Program Files\Notepad++\notepad++ """{1}"""', filePath)
+			Run Format('notepad++.exe "{1}"', filePath)
 			if WinWait("ahk_class Notepad++", , 3)
 			{
 				WinActivate ; Use the window found by WinWait.
@@ -30,7 +30,7 @@
 		}
 		else
 		{
-			Run "C:\Program Files\Notepad++\notepad++"
+			Run "notepad++"
 			if WinWait("ahk_class Notepad++", , 3)
 			{
 				WinActivate ; Use the window found by WinWait.

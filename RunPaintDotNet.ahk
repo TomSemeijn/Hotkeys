@@ -30,7 +30,7 @@
 		}
 		else
 		{
-			Run "C:\Program Files\paint.net\paintdotnet.exe"
+			Run "paintdotnet.exe"
 			if WinWait("ahk_exe paintdotnet.exe", , 3)
 			{
 				WinActivate ; Use the window found by WinWait.
