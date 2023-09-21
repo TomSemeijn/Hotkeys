@@ -6,13 +6,50 @@
 ^+h::ShowGUI
 
 MyGui := 0
+ListView := 0
+SearchBox := 0
+messageCheckbox := 0
+
+DoMessage := False
 
 ShowGUI()
 {
 	global MyGui
+	global ListView
+	global SearchBox
+	global messageCheckbox
+	
 	MyGui := Gui()
+	
+	;messageCheckbox := MyGui.Add("Checkbox",,"Show Messages?")
+	;messageCheckbox.OnEvent("Click", OnCheckUncheck)
+	
+	MyGui.Add("Text",,"Search: ")
+	SearchBox := MyGui.Add("Edit", "w640",)
+	SearchBox.OnEvent("Change", OnSearchChange)
+	
 	ListView := MyGui.Add("ListView", "w640 r30", ["exe", "title","winID"])
 	ListView.OnEvent("DoubleClick", UnHide)
+	
+	PopulateListView()
+	
+	refreshButton := MyGui.Add("Button","xM+590 y0", "Refresh")
+	refreshButton.OnEvent("Click", OnRefresh)
+	
+	MyGui.Show()
+}
+
+PopulateListView()
+{
+	global MyGui
+	global ListView
+	global SearchBox
+	global DoMessage
+	
+	searchStr := SearchBox.Value
+	doSearch := StrLen(searchStr) > 0
+	
+	ListView.Delete()
 	
 	DetectHiddenWindows True
 	for winID in WinGetList(,, "Program Manager")
@@ -22,11 +59,15 @@ ShowGUI()
 			DetectHiddenWindows True
 			title := WinGetTitle("ahk_id" winID)
 			executable := WinGetProcessName("ahk_id" winID)
-			if(StrLen(title) > 0)
+			if(doSearch == 0 or InStr(executable, searchStr) or InStr(title, searchStr))
 			{
-				if(WinIsHidden(winID))
+				
+				if(StrLen(title) > 0)
 				{
-					ListView.Add(,executable,title,winID)
+					if(WinIsHidden(winID))
+					{
+						ListView.Add(,executable,title,winID)
+					}
 				}
 			}
 		}
@@ -36,8 +77,24 @@ ShowGUI()
 	ListView.ModifyCol(2,)
 	ListView.ModifyCol(3,)
 	ListView.ModifyCol(1,"Sort")
+}
+
+OnSearchChange(*)
+{
+	PopulateListView()
+}
+
+OnRefresh(*)
+{
+	PopulateListView()
+}
+
+OnCheckUncheck(*)
+{
+	global messageCheckbox
+	global DoMessage
 	
-	MyGui.Show()
+	DoMessage := messageCheckbox.Value
 }
 
 UnHide(ListView, RowNumber)
