@@ -5,10 +5,12 @@
 
 ^+h::ShowGUI
 
+MyGui := 0
+
 ShowGUI()
 {
+	global MyGui
 	MyGui := Gui()
-	MyGui.Add("Text",, "Pick a window to unhide below.")
 	ListView := MyGui.Add("ListView", "w640 r30", ["exe", "title","winID"])
 	ListView.OnEvent("DoubleClick", UnHide)
 	
@@ -40,9 +42,13 @@ ShowGUI()
 
 UnHide(ListView, RowNumber)
 {
+	global MyGui
+	
 	winID := ListView.GetText(RowNumber, 3)
 	WinShow("ahk_id" winID)
 	WinActivate("ahk_id" winID)
 	ListView.Delete(RowNumber)
+	
+	MyGui.Hide()
 }
 
