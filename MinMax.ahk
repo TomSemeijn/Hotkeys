@@ -21,16 +21,22 @@ lastMinimized := -1
 {
 	global lastMinimized
 	MouseGetPos ,,&winID
-	state := WinGetMinMax("ahk_id" winID)
-	WinMinimize("ahk_id" winID)
-	lastMinimized := winID
+	if(ShouldApplyToWindow(winID))
+	{
+		state := WinGetMinMax("ahk_id" winID)
+		WinMinimize("ahk_id" winID)
+		lastMinimized := winID
+	}
 }
 
 #MButton::
 {
 	MouseGetPos ,,&winID
-	state := WinGetMinMax("ahk_id" winID)
-	WinClose("ahk_id" winID)
+	if(ShouldApplyToWindow(winID))
+	{
+		state := WinGetMinMax("ahk_id" winID)
+		WinClose("ahk_id" winID)
+	}
 }
 
 +RButton::
@@ -40,4 +46,13 @@ lastMinimized := -1
 	{
 		WinRestore "ahk_id" lastMinimized
 	}
+}
+
+ShouldApplyToWindow(winID)
+{
+	try
+	{
+		return WinGetProcessName("ahk_id" winID) != "blender.exe"
+	}
+	return False
 }
