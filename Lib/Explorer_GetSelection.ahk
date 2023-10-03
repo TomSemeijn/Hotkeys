@@ -36,5 +36,7 @@ Explorer_GetSelection() {
 	str := ""
 	for i in foundWin.Document.SelectedItems
 		str .= i.Path "`n"
+	if(StrLen(str) > 0)
+		str := SubStr(str, 1, StrLen(str) - 1)
 	return str
 }
