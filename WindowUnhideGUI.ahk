@@ -39,6 +39,19 @@ ShowGUI()
 	MyGui.Show()
 }
 
+IsTitleExcluded(title)
+{
+	excludedTitles := ["Default IME", "MSCTFIME UI"]
+	for excluded in excludedTitles
+	{
+		if(StrCompare(title, excluded, True) == 0)
+		{
+			return True
+		}
+	}
+	return False
+}
+
 PopulateListView()
 {
 	global MyGui
@@ -61,10 +74,9 @@ PopulateListView()
 			executable := WinGetProcessName("ahk_id" winID)
 			if(doSearch == 0 or InStr(executable, searchStr) or InStr(title, searchStr))
 			{
-				
 				if(StrLen(title) > 0)
 				{
-					if(WinIsHidden(winID))
+					if(!IsTitleExcluded(title) && WinIsHidden(winID))
 					{
 						ListView.Add(,executable,title,winID)
 					}
