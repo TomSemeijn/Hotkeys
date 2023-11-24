@@ -10,7 +10,7 @@ Explorer_GetSelection() {
 	{
 		ret := ""
 		Try hwWindow := ControlGetHwnd('SysListView321', 'ahk_class Progman')
-				hwWindow := hwWindow || ControlGetHwnd('SysListView321', 'A')
+				hwWindow := ControlGetHwnd('SysListView321', 'A')
 		Loop Parse ListViewGetContent('Selected Col1', hwWindow), '`n', '`r'
 			ret .= A_Desktop '\' A_LoopField '`n'
 		Return getFilesWithExtenstions(Trim(ret, '`n'))
