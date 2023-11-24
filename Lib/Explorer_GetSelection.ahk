@@ -8,14 +8,12 @@ Explorer_GetSelection() {
 	;if desktop
 	if (winClass ~= "Progman|WorkerW") ;IShellWindows::Item: https://goo.gl/ihW9Gm ; IShellFolderViewDual: https://goo.gl/gnntq3
 	{
-		shellWindows := ComObject("Shell.Application").Windows
-		shellFolderView := shellWindows.Item(ComObject(VT_UI4 := 0x13, SWC_DESKTOP := 0x8)).Document
-		result := ""
-		for item in shellFolderView.SelectedItems
-		{
-			result .= (result = "" ? "" : "`n") . item.Path
-		}
-		return result
+		ret := ""
+		Try hwWindow := ControlGetHwnd('SysListView321', 'ahk_class Progman')
+				hwWindow := hwWindow || ControlGetHwnd('SysListView321', 'A')
+		Loop Parse ListViewGetContent('Selected Col1', hwWindow), '`n', '`r'
+			ret .= A_Desktop '\' A_LoopField '`n'
+		Return getFilesWithExtenstions(Trim(ret, '`n'))
 	}
 	
 	;if not desktop
@@ -39,4 +37,34 @@ Explorer_GetSelection() {
 	if(StrLen(str) > 0)
 		str := SubStr(str, 1, StrLen(str) - 1)
 	return str
+}
+
+getFilesWithExtenstions(files)
+{
+	if(strLen(files) > 0)
+	{
+		newStr := ""
+		For index, filePath in StrSplit(files, "`n")
+		{
+			SplitPath filePath, &name, &dir, &ext, &name_no_ext, &drive
+			if(strLen(ext) > 0)
+			{
+				newStr .= filepath "`n"
+			}
+			else
+			{
+				Loop Files, dir "/*", "F"
+				{
+					SplitPath A_LoopFileFullPath,,,&currentExt,&currentName
+					if(StrCompare(currentName, name, True) == 0)
+					{
+						newStr .= A_LoopFileFullPath "`n"
+						break
+					}
+				}
+			}
+		}
+		files := newStr
+	}
+	return Trim(files, '`n')
 }
