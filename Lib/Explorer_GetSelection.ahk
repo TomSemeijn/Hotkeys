@@ -1,58 +1,42 @@
-Explorer_GetSelection(hwnd := '', selection := True) {
-	; https://www.autohotkey.com/boards/viewtopic.php?p=509165#p509165
-	hwWindow := ''
-	Switch window := explorerGetWindow(hwnd) {
-		Case '': Return 'ERROR'
-		Case 'desktop':
-			Try hwWindow := ControlGetHwnd('SysListView321', 'ahk_class Progman')
-				hwWindow := hwWindow || ControlGetHwnd('SysListView321', 'A')
-			Loop Parse ListViewGetContent((selection ? 'Selected' : '') ' Col1', hwWindow), '`n', '`r'
-				ret .= A_Desktop '\' A_LoopField '`n'
-		Default:
-			For item in selection ? window.document.SelectedItems : window.document.Folder.Items
-				ret .= item.path '`n'
-	}
-	Return getFilesWithExtenstions(Trim(ret, '`n'))
-}
+Explorer_GetSelection() {
 
-explorerGetWindow(hwnd := '') {
-	class := WinGetClass(hwnd := hwnd || WinExist('A'))
-	Switch {
-		Case WinGetProcessName(hwnd) != 'explorer.exe': Return
-		Case class ~= 'Progman|WorkerW': Return 'desktop'
-		Case class ~= '(Cabinet|Explore)WClass':
-			For window in ComObject('Shell.Application').Windows
-				Try If window.hwnd = hwnd
-					Return window
-	}
-}
-
-getFilesWithExtenstions(files)
-{
-	if(strLen(files) > 0)
+	;check if explorer
+	winClass := WinGetClass("ahk_id" . hWnd := WinExist("A"))
+	if !(winClass ~= "^(Progman|WorkerW|(Cabinet|Explore)WClass)$")
+		Return
+		
+	;if desktop
+	if (winClass ~= "Progman|WorkerW") ;IShellWindows::Item: https://goo.gl/ihW9Gm ; IShellFolderViewDual: https://goo.gl/gnntq3
 	{
-		newStr := ""
-		For index, filePath in StrSplit(files, "`n")
+		shellWindows := ComObject("Shell.Application").Windows
+		shellFolderView := shellWindows.Item(ComObject(VT_UI4 := 0x13, SWC_DESKTOP := 0x8)).Document
+		result := ""
+		for item in shellFolderView.SelectedItems
 		{
-			SplitPath filePath, &name, &dir, &ext, &name_no_ext, &drive
-			if(strLen(ext) > 0)
-			{
-				newStr .= filepath "`n"
-			}
-			else
-			{
-				Loop Files, dir "/*", "F"
-				{
-					SplitPath A_LoopFileFullPath,,,&currentExt,&currentName
-					if(StrCompare(currentName, name, True) == 0)
-					{
-						newStr .= A_LoopFileFullPath "`n"
-						break
-					}
-				}
-			}
+			result .= (result = "" ? "" : "`n") . item.Path
 		}
-		files := newStr
+		return result
 	}
-	return Trim(files, '`n')
+	
+	;if not desktop
+	try activeTab := ControlGetHwnd("ShellTabWindowClass1", hwnd)
+	for w in ComObject("Shell.Application").Windows {
+		if w.hwnd != hwnd
+			continue
+		if IsSet(activeTab) {
+			static IID_IShellBrowser := "{000214E2-0000-0000-C000-000000000046}"
+			shellBrowser := ComObjQuery(w, IID_IShellBrowser, IID_IShellBrowser)
+			ComCall(3, shellBrowser, "uint*", &thisTab:=0)
+			if thisTab != activeTab
+				continue
+		}
+		foundWin := w
+		break
+	}
+	str := ""
+	for i in foundWin.Document.SelectedItems
+		str .= i.Path "`n"
+	if(StrLen(str) > 0)
+		str := SubStr(str, 1, StrLen(str) - 1)
+	return str
 }
