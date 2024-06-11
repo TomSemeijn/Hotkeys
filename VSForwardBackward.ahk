@@ -25,3 +25,7 @@
 	Send "^+-"
 }
 
+<^>!Enter::
+{
+	Send "!{Enter}"
+}
