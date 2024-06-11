@@ -8,7 +8,20 @@
 }
 
 #Hotif WinActive("ahk_exe devenv.exe")
+<^>!left::
+{
+	Send "^-"
+}
+
+#Hotif WinActive("ahk_exe devenv.exe")
 !right::
 {
 	Send "^+-"
 }
+
+#Hotif WinActive("ahk_exe devenv.exe")
+<^>!right::
+{
+	Send "^+-"
+}
+
